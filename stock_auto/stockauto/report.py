@@ -49,11 +49,30 @@ def render(res: dict, synthetic: bool = False) -> str:
     e = html.escape
     parts = [f"<h1>일일 관찰 리포트 · {e(res['as_of'])}</h1>"]
     parts.append(
-        '<div class="box">이 리포트는 조건 충족 여부를 정리한 <b>관찰·점검 자료</b>이며 매수·매도 권유나 주문이 아닙니다. '
+        '<div class="box">이 리포트는 조건 충족 여부를 정리한 <b>관찰·점검 자료</b>이며 매수·매도 권유가 아니며, 실제 돈으로 주문하지 않습니다(한국투자 모의투자 계좌 주문만 사용). '
         "세율·한도는 config.yaml 값을 사용하므로 직접 확인하세요. 과거 수익률은 미래를 보장하지 않습니다."
         + ("<br><b>⚠ 합성 데이터 모드: 아래 수치는 실제 시세가 아닙니다.</b>" if synthetic else "")
         + "</div>"
     )
+
+    # 한국투자 모의 계좌
+    br = res.get("broker")
+    if br:
+        b = br["balance"]
+        ret = b["total"] / br["capital"] - 1 if br["capital"] else float("nan")
+        parts.append("<h2>🏦 한국투자 모의투자 계좌 (실제 주문 · 가상 돈)</h2>")
+        parts.append(f"<p>총평가 <b>{won(b['total'])}</b> (시작 {won(br['capital'])} 대비 <b>{pct(ret)}</b>) · "
+                     f"예수금 {won(b['cash'])} · 적용 규칙: {e(', '.join(br['strategies']))}</p>")
+        rows = [[e(h["name"] or c), str(h["qty"]), f"{h['avg']:,.0f}", f"{h['price']:,.0f}", won(h["value"]),
+                 pct(h["pnl_rt"])] for c, h in b["holdings"].items()]
+        if rows:
+            parts.append(table(["종목", "수량", "평균단가", "현재가", "평가금액", "손익률"], rows))
+        if br["orders"]:
+            rows = [[e(o["date"]), e(o["name"]), "매수" if o["side"] == "buy" else "매도", str(o.get("qty", 0)),
+                     "체결요청" if o.get("ok") else "실패", e(o.get("msg") or ""), e(o["key"].split("|")[0])]
+                    for o in br["orders"]]
+            parts.append("<p><b>최근 주문</b></p>" + table(["날짜", "종목", "구분", "수량", "결과", "메시지", "규칙"], rows))
+        parts.append('<p class="note">주문은 아침 09:05 전후 시장가로 들어가며(GitHub 실행 지연 가능), 체결가는 가상 장부(종가 가정)와 다를 수 있습니다.</p>')
 
     # 모의 매매
     pp = res.get("paper")
@@ -178,6 +197,8 @@ def summary_json(res: dict) -> str:
         {"as_of": res["as_of"],
          "checklist": [{"name": c["name"], "met": c["met"], "evaluable": c["evaluable"]} for c in res["checklist"]],
          "gap_alerts": [g["name"] for g in res["gaps"] if g["alert"]],
+         "broker": ({"total": res["broker"]["balance"]["total"], "capital": res["broker"]["capital"]}
+                    if res.get("broker") else None),
          "paper_events": (res.get("paper") or {}).get("events", []),
          "signals": [{"strategy": s["strategy"], "name": s["name"], "state": s["state"]} for s in res.get("signals", [])],
          "flow_states": {n: f["state"] for n, f in res["flows"].items()},

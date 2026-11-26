@@ -12,6 +12,7 @@ import datetime as dt
 import pathlib
 import sys
 
+from stockauto import broker as bk
 from stockauto import paper, pipeline, report
 from stockauto.providers import KisProvider, LiveProvider, SyntheticProvider
 
@@ -40,6 +41,15 @@ def main() -> int:
     ledger = paper.load(ledger_path)
     res = pipeline.run(cfg, provider, ledger=ledger)
     paper.save(ledger, ledger_path)
+    # 한국투자 모의 계좌 현황 (주문은 하지 않고 조회만)
+    if isinstance(provider, KisProvider) and os.environ.get("KIS_ACCOUNT_NO") and cfg.get("broker", {}).get("enabled"):
+        try:
+            mb = bk.MockBroker(provider, os.environ["KIS_ACCOUNT_NO"])
+            bled = bk.load(out / "broker_ledger.json")
+            res["broker"] = {"balance": mb.balance(), "capital": cfg["broker"]["capital_krw"],
+                             "strategies": cfg["broker"]["strategies"], "orders": bled["orders"][-15:][::-1]}
+        except Exception as e:
+            res["errors"].append(f"모의 계좌 조회 실패: {e}")
     stamp = dt.date.today().isoformat()
     (out / f"report_{stamp}.html").write_text(report.render(res, args.synthetic), encoding="utf-8")
     (out / f"summary_{stamp}.json").write_text(report.summary_json(res), encoding="utf-8")

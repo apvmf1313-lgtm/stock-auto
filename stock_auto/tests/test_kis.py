@@ -67,3 +67,17 @@ def test_token_failure_not_retried():
     with pytest.raises(RuntimeError):
         k.flows("005930", "2026-01-01", "2026-12-31")
     assert s.posts == 1
+
+
+def test_rate_limit_retry():
+    class Limited(FakeSession):
+        calls = 0
+
+        def get(self, url, params, timeout, headers):
+            Limited.calls += 1
+            if Limited.calls == 1:
+                return Resp({"rt_cd": "1", "msg_cd": "EGW00201", "msg1": "초당 거래건수를 초과하였습니다."})
+            return super().get(url, params, timeout, headers)
+
+    f = kis(Limited()).fundamentals(["005930"], "x")
+    assert f.loc["005930", "per"] == pytest.approx(12.5) and Limited.calls == 2
