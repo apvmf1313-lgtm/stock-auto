@@ -40,6 +40,7 @@
   "gap_alerts": [
     "삼성전자 vs 美 상장 비교(예시)"
   ],
+  "paper_events": [],
   "signals": [
     {
       "strategy": "추세추종(예시)",
