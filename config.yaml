@@ -1,0 +1,78 @@
+# 주식 자동화 파이프라인 설정
+# ※ 이 시스템은 "관찰·점검용 리포트"를 만듭니다. 주문 실행/투자 권유 기능은 없습니다.
+
+report:
+  lookback_days: 400          # 데이터 조회 기간(영업일 아님, 달력일)
+  output_dir: output
+
+# 세금 파라미터 — 법이 바뀔 수 있으니 반드시 본인이 확인 후 수정하세요.
+tax:
+  us_cg_rate: 0.22            # 미국주식 양도소득세 (20% + 지방세 2%)
+  us_cg_deduction_krw: 2500000   # 연 기본공제
+  general_div_rate: 0.154     # 일반계좌 배당소득세
+  isa_exempt_krw: 2000000     # ISA 비과세 한도(일반형 기준, 서민형은 더 큼)
+  isa_excess_rate: 0.099      # ISA 한도 초과분 분리과세율
+  irp_pension_rate: 0.055     # IRP 연금수령 시 연금소득세율(연령별 상이)
+
+# 관심종목. yahoo: 가격/배당(yfinance), code: KRX 6자리(pykrx 수급·PER/PBR용)
+# group: 밸류에이션을 비교할 동종 그룹 (직접 지정; 그룹당 4개 이상 권장)
+watchlist:
+  - {name: 삼성전자,   yahoo: 005930.KS, code: "005930", group: 반도체, kind: stock}
+  - {name: SK하이닉스, yahoo: 000660.KS, code: "000660", group: 반도체, kind: stock}
+  - {name: DB하이텍,   yahoo: 000990.KS, code: "000990", group: 반도체, kind: stock}
+  - {name: 한미반도체, yahoo: 042700.KS, code: "042700", group: 반도체, kind: stock}
+  - {name: 리노공업,   yahoo: 058470.KQ, code: "058470", group: 반도체, kind: stock}
+  - {name: KODEX 200,  yahoo: 069500.KS, code: "069500", group: ETF,    kind: etf}
+  - {name: SCHD,       yahoo: SCHD,      group: 미국배당ETF, kind: etf, us: true}
+
+# 배당/커버드콜 ETF 비교 (센트빈 기능): 총수익률 = 가격변동(NAV) + 분배금
+income_etfs: [KODEX 200, SCHD]
+
+# 백테스트 (스노우볼 기능)
+backtest:
+  start: "2022-01-01"
+  initial_krw: 10000000
+  monthly_krw: 500000
+  tickers: [삼성전자, KODEX 200, SCHD]
+
+# 한·미 괴리율 (데일리아카이브 기능). ratio = 미국 1주(1ADR/ETF)당 한국 주식 수
+gap_pairs:
+  - {name: 삼성전자 vs 美 상장 비교(예시), kr: 005930.KS, us: SSNLF, ratio: 1}
+  - {name: KODEX200 vs EWY(예시), kr: 069500.KS, us: EWY, ratio: 1}
+gap_z_threshold: 2.0
+
+# 수급 쏠림 판정 (세콤달/Who Buy 기능)
+flows:
+  windows: [5, 20, 60]
+  accumulate_threshold: 0.02   # 20일 외국인+기관 순매수 / 20일 거래대금 이 값 이상이면 '매집'
+  exit_threshold: -0.02
+
+# 사용자 정의 관찰 규칙: 종목별로 충족 개수를 표시 (매수/매도 신호 아님)
+rules:
+  cheap_percentile: 0.35       # PER·PBR 그룹내 하위 35% 이하
+  momentum_days: 60            # 이 기간 총수익률이 0 초과
+  require_flow_accumulate: true
+
+# 매수·매도 "조건 알림" 규칙 — 아래는 동작 예시일 뿐 추천이 아닙니다. 본인 기준으로 바꾸세요.
+# buy_all: 모두 참일 때 매수 조건 충족 / sell_any: 하나라도 참이면 매도 조건 충족
+# type: sma_cross_up|sma_cross_down|sma_above|sma_below (fast, slow)
+#       rsi_below|rsi_above (n, value)   smart_ratio_above|smart_ratio_below (window, value; 외국인+기관 순매수/거래대금)
+signal_cost_per_side: 0.0015     # 편도 거래비용 가정(수수료+슬리피지; 매도세는 별도 반영 안 됨, 필요시 올리세요)
+signals:
+  - name: 추세추종(예시)
+    tickers: [삼성전자, SK하이닉스, KODEX 200]
+    buy_all:
+      - {type: sma_cross_up, fast: 20, slow: 60}
+    sell_any:
+      - {type: sma_cross_down, fast: 20, slow: 60}
+    stop_loss: -0.08
+  - name: 눌림+수급(예시)
+    tickers: [삼성전자, SK하이닉스, DB하이텍, 한미반도체, 리노공업]
+    buy_all:
+      - {type: sma_above, fast: 20, slow: 60}
+      - {type: rsi_below, n: 14, value: 40}
+      - {type: smart_ratio_above, window: 20, value: 0.0}
+    sell_any:
+      - {type: rsi_above, n: 14, value: 70}
+    stop_loss: -0.07
+    take_profit: 0.15
