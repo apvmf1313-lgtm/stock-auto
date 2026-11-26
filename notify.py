@@ -13,6 +13,9 @@ import urllib.request
 
 def build_message(s: dict, pages_url: str | None = None) -> str:
     lines = [f"📊 {s['as_of']} 관찰 리포트"]
+    if s.get("broker"):
+        b = s["broker"]
+        lines.append(f"🏦 모의계좌 총평가 {b['total']:,.0f}원 ({(b['total'] / b['capital'] - 1) * 100:+.2f}%)")
     paper = s.get("paper_events") or []
     lines.append("🧪 모의 매매: " + ("\n - " + "\n - ".join(paper) if paper else "오늘 체결·예약 없음"))
     hits = [f"{x['name']}({x['strategy']}): {x['state']}" for x in s.get("signals", []) if x["state"] != "해당없음"]
@@ -30,7 +33,7 @@ def build_message(s: dict, pages_url: str | None = None) -> str:
         lines.append(f"❗ 수집 오류 {len(s['errors'])}건 (리포트 하단 확인)")
     if pages_url:
         lines.append(pages_url + "/latest.html")
-    lines.append("※ 실제 주문 없음 · 투자 권유 아님")
+    lines.append("※ 실제 돈 주문 없음(모의계좌만) · 투자 권유 아님")
     return "\n".join(lines)
 
 
