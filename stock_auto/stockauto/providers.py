@@ -94,7 +94,7 @@ class KisProvider(LiveProvider):
 
         self.key, self.secret = app_key, app_secret
         self.base = self.BASES[env]
-        self.pause = 0.6 if env == "demo" else 0.08   # 초당 호출 제한 대응
+        self.pause = 1.0 if env == "demo" else 0.1    # 초당 호출 제한 대응 (모의 서버가 더 엄격)
         self.cache_dir = cache_dir
         self.http = session or requests.Session()
         self._token = None
@@ -116,15 +116,19 @@ class KisProvider(LiveProvider):
     def _get(self, path: str, tr_id: str, params: dict) -> dict:
         import time
 
-        time.sleep(self.pause)
-        r = self.http.get(f"{self.base}{path}", params=params, timeout=15, headers={
-            "content-type": "application/json; charset=utf-8",
-            "authorization": f"Bearer {self._token_get()}",
-            "appkey": self.key, "appsecret": self.secret, "tr_id": tr_id, "custtype": "P"})
-        data = r.json()
-        if data.get("rt_cd") != "0":
-            raise RuntimeError(f"KIS {tr_id} 오류: {data.get('msg1') or data}")
-        return data
+        for attempt in range(4):
+            time.sleep(self.pause * (1 + 2 * attempt))   # 재시도할수록 더 오래 쉼
+            r = self.http.get(f"{self.base}{path}", params=params, timeout=15, headers={
+                "content-type": "application/json; charset=utf-8",
+                "authorization": f"Bearer {self._token_get()}",
+                "appkey": self.key, "appsecret": self.secret, "tr_id": tr_id, "custtype": "P"})
+            data = r.json()
+            if data.get("rt_cd") == "0":
+                return data
+            msg = str(data.get("msg1") or data)
+            if "초당" not in msg and "EGW00201" not in str(data.get("msg_cd")):
+                break                                         # 속도 제한이 아닌 오류는 재시도하지 않음
+        raise RuntimeError(f"KIS {tr_id} 오류: {msg}")
 
     def fundamentals(self, codes, date):
         rows = {}
