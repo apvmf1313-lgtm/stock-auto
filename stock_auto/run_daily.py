@@ -11,7 +11,7 @@ import datetime as dt
 import pathlib
 import sys
 
-from stockauto import pipeline, report
+from stockauto import paper, pipeline, report
 from stockauto.providers import LiveProvider, SyntheticProvider
 
 
@@ -24,10 +24,13 @@ def main() -> int:
 
     cfg = pipeline.load_config(args.config)
     provider = SyntheticProvider() if args.synthetic else LiveProvider()
-    res = pipeline.run(cfg, provider)
-
     out = pathlib.Path(args.out or cfg["report"]["output_dir"])
     out.mkdir(parents=True, exist_ok=True)
+    # 모의 매매 장부: 리포트 폴더에 저장되어 다음 실행에 이어진다 (합성 모드는 별도 파일)
+    ledger_path = out / ("paper_ledger_synthetic.json" if args.synthetic else "paper_ledger.json")
+    ledger = paper.load(ledger_path)
+    res = pipeline.run(cfg, provider, ledger=ledger)
+    paper.save(ledger, ledger_path)
     stamp = dt.date.today().isoformat()
     (out / f"report_{stamp}.html").write_text(report.render(res, args.synthetic), encoding="utf-8")
     (out / f"summary_{stamp}.json").write_text(report.summary_json(res), encoding="utf-8")

@@ -64,6 +64,28 @@ def render(res: dict, synthetic: bool = False) -> str:
     parts.append("<h2>② 관찰 규칙 체크리스트 (핀트릭스·세콤달 기반)</h2>")
     parts.append(table(["종목", "충족", "조건", "종가", "최근 120일"], rows))
 
+    # 모의 매매
+    pp = res.get("paper")
+    if pp:
+        parts.append("<h2>⓪ 모의 매매 (가상 계좌 · 실제 주문 없음)</h2>")
+        if pp["events"]:
+            parts.append("<ul>" + "".join(f"<li>{e(x)}</li>" for x in pp["events"]) + "</ul>")
+        else:
+            parts.append('<p class="note">오늘 새 체결·예약 없음</p>')
+        rows = [[e(s["strategy"]), str(s["slots"]), pct(s["return"]), pct(s["buy_hold"])] for s in pp["strategies"]]
+        parts.append(table(["규칙", "종목 수", "모의 수익률(평균)", "같은 기간 단순보유"], rows))
+        rows = [[e(r["strategy"]), e(r["name"]), e(r["state"]), e(r["started"]),
+                 f"{e(r['entry_date'])} @ {r['entry_price']:,.2f}" if r["entry_price"] else "-",
+                 pct(r["open_return"]), pct(r["return"]), pct(r["buy_hold"]),
+                 f"{r['trades']}회 / {pct(r['win_rate'], 0)}"] for r in pp["rows"]]
+        parts.append(table(["규칙", "종목", "상태", "시작일", "진입", "보유 손익", "누적", "단순보유", "완료거래/승률"], rows))
+        if pp["trades"]:
+            rows = [[e(t["exit_date"]), e(t["name"]), e(t["strategy"]), f"{t['entry']:,.2f} → {t['exit']:,.2f}",
+                     pct(t["ret"]), e(t["reason"] or "")] for t in pp["trades"]]
+            parts.append("<p><b>최근 완료 거래</b></p>" + table(["청산일", "종목", "규칙", "가격", "수익률", "사유"], rows))
+        parts.append('<p class="note">가상 원금 100에서 시작해 신호 다음 거래일 종가로 체결합니다(거래비용 반영, 배당 미반영). '
+                     '실행이 빠진 날은 체결이 하루씩 밀릴 수 있습니다. 실제 계좌와 무관합니다.</p>')
+
     # 매수·매도 조건 알림
     if res.get("signals"):
         rows = []
@@ -144,6 +166,7 @@ def summary_json(res: dict) -> str:
         {"as_of": res["as_of"],
          "checklist": [{"name": c["name"], "met": c["met"], "evaluable": c["evaluable"]} for c in res["checklist"]],
          "gap_alerts": [g["name"] for g in res["gaps"] if g["alert"]],
+         "paper_events": (res.get("paper") or {}).get("events", []),
          "signals": [{"strategy": s["strategy"], "name": s["name"], "state": s["state"]} for s in res.get("signals", [])],
          "flow_states": {n: f["state"] for n, f in res["flows"].items()},
          "errors": res["errors"]},

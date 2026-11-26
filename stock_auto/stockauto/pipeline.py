@@ -7,6 +7,7 @@ import pandas as pd
 import yaml
 
 from . import analytics as an
+from . import paper
 from . import signals as sg
 from . import taxes
 from .providers import Provider
@@ -17,7 +18,7 @@ def load_config(path: str) -> dict:
         return yaml.safe_load(f)
 
 
-def run(cfg: dict, provider: Provider, today: dt.date | None = None) -> dict:
+def run(cfg: dict, provider: Provider, today: dt.date | None = None, ledger: dict | None = None) -> dict:
     today = today or dt.date.today()
     end = today.isoformat()
     start = (today - dt.timedelta(days=cfg["report"]["lookback_days"])).isoformat()
@@ -113,6 +114,15 @@ def run(cfg: dict, provider: Provider, today: dt.date | None = None) -> dict:
             except Exception as e:
                 errors.append(f"시그널 실패 {strat['name']}/{name}: {e}")
 
+    # 6.6) 모의 매매(가상 계좌) — 장부가 주어졌을 때만
+    paper_out = None
+    if ledger is not None and cfg.get("paper", {}).get("enabled", True):
+        try:
+            paper.update(ledger, cfg, prices, flow_raw, end)
+            paper_out = paper.summarize(ledger)
+        except Exception as e:
+            errors.append(f"모의 매매 실패: {e}")
+
     # 7) 관찰 규칙 (매수/매도 신호 아님 — 조건 충족 체크리스트)
     rules = cfg["rules"]
     checklist = []
@@ -160,6 +170,7 @@ def run(cfg: dict, provider: Provider, today: dt.date | None = None) -> dict:
         "flows": flows_out,
         "gaps": gaps,
         "signals": sig_out,
+        "paper": paper_out,
         "checklist": checklist,
         "tax": tax_cmp,
         "errors": errors,
