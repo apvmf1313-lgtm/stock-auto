@@ -37,9 +37,11 @@
       "evaluable": 2
     }
   ],
-  "gap_alerts": [
-    "삼성전자 vs 美 상장 비교(예시)"
-  ],
+  "gap_alerts": [],
+  "broker": {
+    "total": 10000000.0,
+    "capital": 10000000
+  },
   "paper_events": [],
   "signals": [
     {
@@ -81,6 +83,91 @@
       "strategy": "눌림+수급(예시)",
       "name": "리노공업",
       "state": "해당없음"
+    },
+    {
+      "strategy": "단기추세",
+      "name": "삼성전자",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "단기추세",
+      "name": "SK하이닉스",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "단기추세",
+      "name": "KODEX 200",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "장기추세",
+      "name": "삼성전자",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "장기추세",
+      "name": "SK하이닉스",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "장기추세",
+      "name": "KODEX 200",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "과매도반등",
+      "name": "삼성전자",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "과매도반등",
+      "name": "SK하이닉스",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "과매도반등",
+      "name": "DB하이텍",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "과매도반등",
+      "name": "한미반도체",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "과매도반등",
+      "name": "리노공업",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "과매도반등",
+      "name": "KODEX 200",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "수급추종",
+      "name": "삼성전자",
+      "state": "매도 조건 충족"
+    },
+    {
+      "strategy": "수급추종",
+      "name": "SK하이닉스",
+      "state": "매도 조건 충족"
+    },
+    {
+      "strategy": "수급추종",
+      "name": "DB하이텍",
+      "state": "매도 조건 충족"
+    },
+    {
+      "strategy": "수급추종",
+      "name": "한미반도체",
+      "state": "매도 조건 충족"
+    },
+    {
+      "strategy": "수급추종",
+      "name": "리노공업",
+      "state": "매도 조건 충족"
     }
   ],
   "flow_states": {
