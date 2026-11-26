@@ -34,6 +34,9 @@ jobs:
         run: python -m pytest -q
 
       - name: 리포트 생성
+        env:
+          KIS_APP_KEY: ${{ secrets.KIS_APP_KEY }}
+          KIS_APP_SECRET: ${{ secrets.KIS_APP_SECRET }}
         run: python run_daily.py --out ../docs
 
       - name: 목록 페이지 생성
