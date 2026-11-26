@@ -7,12 +7,13 @@
 from __future__ import annotations
 
 import argparse
+import os
 import datetime as dt
 import pathlib
 import sys
 
 from stockauto import paper, pipeline, report
-from stockauto.providers import LiveProvider, SyntheticProvider
+from stockauto.providers import KisProvider, LiveProvider, SyntheticProvider
 
 
 def main() -> int:
@@ -23,9 +24,17 @@ def main() -> int:
     args = ap.parse_args()
 
     cfg = pipeline.load_config(args.config)
-    provider = SyntheticProvider() if args.synthetic else LiveProvider()
     out = pathlib.Path(args.out or cfg["report"]["output_dir"])
     out.mkdir(parents=True, exist_ok=True)
+    if args.synthetic:
+        provider = SyntheticProvider()
+    elif os.environ.get("KIS_APP_KEY") and os.environ.get("KIS_APP_SECRET"):
+        provider = KisProvider(os.environ["KIS_APP_KEY"], os.environ["KIS_APP_SECRET"],
+                               env=cfg.get("kis", {}).get("env", "demo"), cache_dir=out / "flows")
+        print(f"수급·PER/PBR: 한국투자증권 Open API ({provider.base})")
+    else:
+        provider = LiveProvider()
+        print("수급·PER/PBR: pykrx (KIS_APP_KEY 없음)")
     # 모의 매매 장부: 리포트 폴더에 저장되어 다음 실행에 이어진다 (합성 모드는 별도 파일)
     ledger_path = out / ("paper_ledger_synthetic.json" if args.synthetic else "paper_ledger.json")
     ledger = paper.load(ledger_path)

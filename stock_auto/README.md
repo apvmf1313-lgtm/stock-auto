@@ -68,3 +68,9 @@ pytest -q                           # 계산 로직 테스트
 - `signals` 규칙대로 매일 가상으로 사고팔아 `docs/paper_ledger.json` 장부에 누적합니다. 실제 주문은 없습니다.
 - 신호 다음 거래일 종가 체결, 거래비용 반영, 배당 미반영. 같은 날 여러 번 실행해도 한 번만 처리됩니다.
 - 장부를 처음부터 다시 시작하려면 `docs/paper_ledger.json` 을 삭제하세요.
+
+## 한국투자증권 Open API (수급·PER/PBR)
+- KRX 사이트 변경으로 pykrx 수급·PER/PBR 수집이 막혀, 한국투자증권 Open API 시세 조회로 대체했습니다(주문 API는 호출하지 않음).
+- GitHub Secrets: `KIS_APP_KEY`, `KIS_APP_SECRET`. `config.yaml` 의 `kis.env`: `demo`(모의투자 키, 권장) / `real`.
+- 투자자 매매동향은 최근 약 30거래일만 제공되므로 `docs/flows/<종목코드>.csv` 에 매일 누적합니다.
+- 순매수 금액 = 순매수 수량 × 종가 로 계산합니다.

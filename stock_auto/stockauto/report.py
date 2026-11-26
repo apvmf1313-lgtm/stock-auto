@@ -55,15 +55,6 @@ def render(res: dict, synthetic: bool = False) -> str:
         + "</div>"
     )
 
-    # 체크리스트
-    rows = []
-    for c in res["checklist"]:
-        cells = "".join(f"<div>{e(k)}: {mark(v)}</div>" for k, v in c["checks"].items())
-        rows.append([e(c["name"]), f"{c['met']}/{c['evaluable']}", f'<div style="text-align:left">{cells}</div>',
-                     f"{c['last_close']:,.0f}", spark(c["spark"])])
-    parts.append("<h2>② 관찰 규칙 체크리스트 (핀트릭스·세콤달 기반)</h2>")
-    parts.append(table(["종목", "충족", "조건", "종가", "최근 120일"], rows))
-
     # 모의 매매
     pp = res.get("paper")
     if pp:
@@ -100,6 +91,15 @@ def render(res: dict, synthetic: bool = False) -> str:
         parts.append("<h2>① 내 규칙 기준 매수·매도 조건 알림</h2>")
         parts.append(table(["규칙", "종목", "오늘", "조건(▶=참)", "규칙 수익률", "단순보유", "MDD", "거래수/승률"], rows))
         parts.append('<p class="note">규칙은 config.yaml 에 사용자가 정의한 것이며 투자 권유가 아닙니다. 백테스트는 종가 신호→다음날 종가 체결, 편도 비용 가정, 같은 기간 과거 성과이며 미래를 보장하지 않습니다. 거래 횟수가 적으면 통계적 의미가 약합니다.</p>')
+
+    # 체크리스트
+    rows = []
+    for c in res["checklist"]:
+        cells = "".join(f"<div>{e(k)}: {mark(v)}</div>" for k, v in c["checks"].items())
+        rows.append([e(c["name"]), f"{c['met']}/{c['evaluable']}", f'<div style="text-align:left">{cells}</div>',
+                     f"{c['last_close']:,.0f}", spark(c["spark"])])
+    parts.append("<h2>② 관찰 규칙 체크리스트 (핀트릭스·세콤달 기반)</h2>")
+    parts.append(table(["종목", "충족", "조건", "종가", "최근 120일"], rows))
 
     # 수급
     rows = []

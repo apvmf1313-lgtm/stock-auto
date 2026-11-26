@@ -80,3 +80,8 @@ signals:
 # 모의 매매: 위 signals 규칙대로 가상으로 사고팔아 장부(paper_ledger.json)에 기록. 실제 주문 없음.
 paper:
   enabled: true
+
+# 한국투자증권 Open API (수급·PER/PBR). 키는 GitHub Secrets 의 KIS_APP_KEY / KIS_APP_SECRET 로 넣습니다.
+# env: demo = 모의투자 키(실제 주문 불가, 권장) / real = 실전 키
+kis:
+  env: demo
