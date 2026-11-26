@@ -141,13 +141,13 @@
  "history": [
   {
    "date": "2026-11-26",
-   "strategy": "눌림+수급(예시)",
+   "strategy": "추세추종(예시)",
    "equity": 100.0,
    "buy_hold": 100.0
   },
   {
    "date": "2026-11-26",
-   "strategy": "추세추종(예시)",
+   "strategy": "눌림+수급(예시)",
    "equity": 100.0,
    "buy_hold": 100.0
   }

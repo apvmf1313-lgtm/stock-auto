@@ -7,29 +7,29 @@
       "evaluable": 1
     },
     {
+      "name": "DB하이텍",
+      "met": 1,
+      "evaluable": 3
+    },
+    {
       "name": "삼성전자",
       "met": 0,
-      "evaluable": 1
+      "evaluable": 3
     },
     {
       "name": "SK하이닉스",
       "met": 0,
-      "evaluable": 1
-    },
-    {
-      "name": "DB하이텍",
-      "met": 0,
-      "evaluable": 1
+      "evaluable": 3
     },
     {
       "name": "한미반도체",
       "met": 0,
-      "evaluable": 1
+      "evaluable": 3
     },
     {
       "name": "리노공업",
       "met": 0,
-      "evaluable": 1
+      "evaluable": 2
     },
     {
       "name": "KODEX 200",
@@ -83,14 +83,14 @@
       "state": "해당없음"
     }
   ],
-  "flow_states": {},
+  "flow_states": {
+    "삼성전자": "이탈",
+    "SK하이닉스": "이탈",
+    "DB하이텍": "이탈",
+    "한미반도체": "중립",
+    "리노공업": "이탈"
+  },
   "errors": [
-    "PER/PBR 수집 실패: \"None of [Index(['BPS', 'PER', 'PBR', 'EPS', 'DIV', 'DPS'], dtype='object')] are in the [columns]\"",
-    "수급 수집 실패 삼성전자: \"None of [Index(['foreign', 'institution', 'individual'], dtype='object')] are in the [columns]\"",
-    "수급 수집 실패 SK하이닉스: \"None of [Index(['foreign', 'institution', 'individual'], dtype='object')] are in the [columns]\"",
-    "수급 수집 실패 DB하이텍: \"None of [Index(['foreign', 'institution', 'individual'], dtype='object')] are in the [columns]\"",
-    "수급 수집 실패 한미반도체: \"None of [Index(['foreign', 'institution', 'individual'], dtype='object')] are in the [columns]\"",
-    "수급 수집 실패 리노공업: \"None of [Index(['foreign', 'institution', 'individual'], dtype='object')] are in the [columns]\"",
-    "수급 수집 실패 KODEX 200: \"None of [Index(['foreign', 'institution', 'individual'], dtype='object')] are in the [columns]\""
+    "수급 수집 실패 KODEX 200: KIS FHKST01010900 오류: 초당 거래건수를 초과하였습니다."
   ]
 }
