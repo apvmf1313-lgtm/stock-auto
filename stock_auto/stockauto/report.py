@@ -63,8 +63,20 @@ def render(res: dict, synthetic: bool = False) -> str:
             parts.append("<ul>" + "".join(f"<li>{e(x)}</li>" for x in pp["events"]) + "</ul>")
         else:
             parts.append('<p class="note">오늘 새 체결·예약 없음</p>')
-        rows = [[e(s["strategy"]), str(s["slots"]), pct(s["return"]), pct(s["buy_hold"])] for s in pp["strategies"]]
-        parts.append(table(["규칙", "종목 수", "모의 수익률(평균)", "같은 기간 단순보유"], rows))
+        bt = {}
+        for s in res.get("signals", []):
+            bt.setdefault(s["strategy"], []).append(s["backtest"])
+        rows = []
+        for s in sorted(pp["strategies"], key=lambda x: x["return"] - x["buy_hold"], reverse=True):
+            b = bt.get(s["strategy"], [])
+            avg = lambda k: sum(x[k] for x in b) / len(b) if b else float("nan")
+            rows.append([e(s["strategy"]), str(s["slots"]), pct(s["return"]), pct(s["buy_hold"]),
+                         pct(s["return"] - s["buy_hold"]), pct(avg("return")), pct(avg("buy_hold_return"))])
+        parts.append("<p><b>규칙 성적표</b> (모의 매매 초과수익 순)</p>")
+        parts.append(table(["규칙", "종목 수", "모의 수익률", "같은 기간 단순보유", "초과수익",
+                            "과거 백테스트 평균", "과거 단순보유 평균"], rows))
+        parts.append('<p class="note">판단 기준은 <b>모의 매매(앞으로의 성적)</b>입니다. 과거 백테스트는 참고용이며, '
+                     '과거에 잘 맞게 규칙을 자꾸 고치면 과최적화되어 실제로는 성적이 나빠지기 쉽습니다.</p>')
         rows = [[e(r["strategy"]), e(r["name"]), e(r["state"]), e(r["started"]),
                  f"{e(r['entry_date'])} @ {r['entry_price']:,.2f}" if r["entry_price"] else "-",
                  pct(r["open_return"]), pct(r["return"]), pct(r["buy_hold"]),
