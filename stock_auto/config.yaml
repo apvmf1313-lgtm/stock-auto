@@ -36,9 +36,7 @@ backtest:
   tickers: [삼성전자, KODEX 200, SCHD]
 
 # 한·미 괴리율 (데일리아카이브 기능). ratio = 미국 1주(1ADR/ETF)당 한국 주식 수
-gap_pairs:
-  - {name: 삼성전자 vs 美 상장 비교(예시), kr: 005930.KS, us: SSNLF, ratio: 1}
-  - {name: KODEX200 vs EWY(예시), kr: 069500.KS, us: EWY, ratio: 1}
+gap_pairs: []   # 실제 비교할 한·미 페어가 생기면 추가 (예시 페어는 환산비율이 맞지 않아 제거)
 gap_z_threshold: 2.0
 
 # 수급 쏠림 판정 (세콤달/Who Buy 기능)
@@ -59,14 +57,15 @@ rules:
 #       rsi_below|rsi_above (n, value)   smart_ratio_above|smart_ratio_below (window, value; 외국인+기관 순매수/거래대금)
 signal_cost_per_side: 0.0015     # 편도 거래비용 가정(수수료+슬리피지; 매도세는 별도 반영 안 됨, 필요시 올리세요)
 signals:
-  - name: 추세추종(예시)
+  # ── 후보 규칙들: 모두 동시에 모의 매매되어 성적이 비교됩니다 (이름을 바꾸면 기록이 새로 시작됨) ──
+  - name: 추세추종(예시)            # 20/60일선 골든·데드크로스
     tickers: [삼성전자, SK하이닉스, KODEX 200]
     buy_all:
       - {type: sma_cross_up, fast: 20, slow: 60}
     sell_any:
       - {type: sma_cross_down, fast: 20, slow: 60}
     stop_loss: -0.08
-  - name: 눌림+수급(예시)
+  - name: 눌림+수급(예시)           # 상승추세 중 과매도 + 외국인·기관 순매수
     tickers: [삼성전자, SK하이닉스, DB하이텍, 한미반도체, 리노공업]
     buy_all:
       - {type: sma_above, fast: 20, slow: 60}
@@ -76,6 +75,35 @@ signals:
       - {type: rsi_above, n: 14, value: 70}
     stop_loss: -0.07
     take_profit: 0.15
+  - name: 단기추세                  # 5/20일선 교차 (빠른 대응, 잦은 거래)
+    tickers: [삼성전자, SK하이닉스, KODEX 200]
+    buy_all:
+      - {type: sma_cross_up, fast: 5, slow: 20}
+    sell_any:
+      - {type: sma_cross_down, fast: 5, slow: 20}
+    stop_loss: -0.06
+  - name: 장기추세                  # 50/120일선 (느린 대응, 큰 추세만)
+    tickers: [삼성전자, SK하이닉스, KODEX 200]
+    buy_all:
+      - {type: sma_cross_up, fast: 50, slow: 120}
+    sell_any:
+      - {type: sma_cross_down, fast: 50, slow: 120}
+    stop_loss: -0.12
+  - name: 과매도반등                # RSI 30 미만 매수, 55 초과 매도 (역추세)
+    tickers: [삼성전자, SK하이닉스, DB하이텍, 한미반도체, 리노공업, KODEX 200]
+    buy_all:
+      - {type: rsi_below, n: 14, value: 30}
+    sell_any:
+      - {type: rsi_above, n: 14, value: 55}
+    stop_loss: -0.10
+  - name: 수급추종                  # 외국인+기관 20일 순매수 강도 3% 이상 + 상승추세
+    tickers: [삼성전자, SK하이닉스, DB하이텍, 한미반도체, 리노공업]
+    buy_all:
+      - {type: smart_ratio_above, window: 20, value: 0.03}
+      - {type: sma_above, fast: 20, slow: 60}
+    sell_any:
+      - {type: smart_ratio_below, window: 20, value: 0.0}
+    stop_loss: -0.08
 
 # 모의 매매: 위 signals 규칙대로 가상으로 사고팔아 장부(paper_ledger.json)에 기록. 실제 주문 없음.
 paper:
