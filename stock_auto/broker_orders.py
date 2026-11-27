@@ -49,6 +49,7 @@ def main() -> int:
     if not actions:
         print("오늘 넣을 주문 없음")
         bk.save(bled, bled_path)
+        telegram("🛒 모의투자 계좌: 오늘 넣을 주문 없음 (어제 저녁 예약된 매수·매도 신호 없음, 정상 실행)")
         return 0
     kis = KisProvider(os.environ["KIS_APP_KEY"], os.environ["KIS_APP_SECRET"], env=cfg.get("kis", {}).get("env", "demo"))
     broker = bk.MockBroker(kis, os.environ["KIS_ACCOUNT_NO"])

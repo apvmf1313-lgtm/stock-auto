@@ -26,13 +26,20 @@ class Provider:
         raise NotImplementedError
 
 
+def _yf_end(end: str) -> str:
+    """yfinance history()의 end 는 '그 날짜 미포함'이라 하루를 더해 end 당일 종가까지 받는다."""
+    import datetime as _dt
+
+    return (_dt.date.fromisoformat(str(end)[:10]) + _dt.timedelta(days=1)).isoformat()
+
+
 class LiveProvider(Provider):
     """yfinance(가격·배당·환율) + pykrx(수급·PER/PBR). 설치/네트워크가 필요하다."""
 
     def prices(self, symbol, start, end):
         import yfinance as yf
 
-        h = yf.Ticker(symbol).history(start=start, end=end, auto_adjust=False)
+        h = yf.Ticker(symbol).history(start=start, end=_yf_end(end), auto_adjust=False)
         if h.empty:
             raise ValueError(f"가격 데이터 없음: {symbol}")
         h.index = pd.to_datetime(h.index).tz_localize(None).normalize()
@@ -73,7 +80,7 @@ class LiveProvider(Provider):
     def fx(self, start, end):
         import yfinance as yf
 
-        h = yf.Ticker("KRW=X").history(start=start, end=end)
+        h = yf.Ticker("KRW=X").history(start=start, end=_yf_end(end))
         s = h["Close"]
         s.index = pd.to_datetime(s.index).tz_localize(None).normalize()
         return s.rename("usdkrw")
