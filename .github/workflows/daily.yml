@@ -52,6 +52,9 @@ jobs:
           git pull --rebase
           git push
 
+      - name: GitHub Pages 배포 대기 (알림 링크가 새 리포트를 보이도록)
+        run: sleep 90
+
       - name: 텔레그램 알림(선택)
         working-directory: .
         env:
