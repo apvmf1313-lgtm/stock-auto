@@ -1,0 +1,182 @@
+{
+  "as_of": "2026-11-27",
+  "checklist": [
+    {
+      "name": "SCHD",
+      "met": 1,
+      "evaluable": 1
+    },
+    {
+      "name": "DB하이텍",
+      "met": 1,
+      "evaluable": 3
+    },
+    {
+      "name": "삼성전자",
+      "met": 0,
+      "evaluable": 3
+    },
+    {
+      "name": "SK하이닉스",
+      "met": 0,
+      "evaluable": 3
+    },
+    {
+      "name": "한미반도체",
+      "met": 0,
+      "evaluable": 3
+    },
+    {
+      "name": "리노공업",
+      "met": 0,
+      "evaluable": 2
+    },
+    {
+      "name": "KODEX 200",
+      "met": 0,
+      "evaluable": 2
+    }
+  ],
+  "gap_alerts": [],
+  "broker": {
+    "total": 10000000.0,
+    "capital": 10000000
+  },
+  "paper_events": [],
+  "signals": [
+    {
+      "strategy": "추세추종(예시)",
+      "name": "삼성전자",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "추세추종(예시)",
+      "name": "SK하이닉스",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "추세추종(예시)",
+      "name": "KODEX 200",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "눌림+수급(예시)",
+      "name": "삼성전자",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "눌림+수급(예시)",
+      "name": "SK하이닉스",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "눌림+수급(예시)",
+      "name": "DB하이텍",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "눌림+수급(예시)",
+      "name": "한미반도체",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "눌림+수급(예시)",
+      "name": "리노공업",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "단기추세",
+      "name": "삼성전자",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "단기추세",
+      "name": "SK하이닉스",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "단기추세",
+      "name": "KODEX 200",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "장기추세",
+      "name": "삼성전자",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "장기추세",
+      "name": "SK하이닉스",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "장기추세",
+      "name": "KODEX 200",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "과매도반등",
+      "name": "삼성전자",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "과매도반등",
+      "name": "SK하이닉스",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "과매도반등",
+      "name": "DB하이텍",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "과매도반등",
+      "name": "한미반도체",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "과매도반등",
+      "name": "리노공업",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "과매도반등",
+      "name": "KODEX 200",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "수급추종",
+      "name": "삼성전자",
+      "state": "매도 조건 충족"
+    },
+    {
+      "strategy": "수급추종",
+      "name": "SK하이닉스",
+      "state": "매도 조건 충족"
+    },
+    {
+      "strategy": "수급추종",
+      "name": "DB하이텍",
+      "state": "매도 조건 충족"
+    },
+    {
+      "strategy": "수급추종",
+      "name": "한미반도체",
+      "state": "해당없음"
+    },
+    {
+      "strategy": "수급추종",
+      "name": "리노공업",
+      "state": "매도 조건 충족"
+    }
+  ],
+  "flow_states": {
+    "삼성전자": "이탈",
+    "SK하이닉스": "이탈",
+    "DB하이텍": "이탈",
+    "한미반도체": "중립",
+    "리노공업": "중립",
+    "KODEX 200": "중립"
+  },
+  "errors": []
+}
